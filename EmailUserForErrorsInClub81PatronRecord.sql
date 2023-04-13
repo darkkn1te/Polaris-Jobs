@@ -1,8 +1,9 @@
+if exists(
 SELECT
 	p.PatronID AS [PatronID],
 	p.Barcode AS [Barcode],
 	pc.Description AS [Patron Code],
-	pu.Name AS [Creator],
+	@recipients = pu.Name AS [Creator],
 	addr.StreetOne AS [Street One],
 	addr.StreetTwo AS [Street Two],
 	pos.City AS [City],
@@ -44,3 +45,27 @@ WHERE
 	WHERE StreetOne NOT LIKE '%[0-9]%') -- Weeds out anything with numbers in the Street One address
 AND
 	p.PatronCodeID != 5 -- eCard PatronCodeID
+AND
+	pr.registrationDate < DATEADD(day, -7, GETDATE());
+)
+
+begin
+exec msdb.dbo.sp_send_dbmail
+	@profile_name = 'Prod Mail',
+	@recipients,
+	@subject = 'Errors in Club 81 Student Records',
+	@query = 'select p.barcode, pr.RegistrationDate from polaris.polaris.patrons p with (nolock)
+inner join polaris.polaris.patronregistration pr with (nolock)
+on p.patronid = pr.patronid
+inner join polaris.polaris.patronaddresses padd with (nolock)
+on p.patronid = padd.patronid
+inner join polaris.polaris.addresses addr with (nolock)
+on addr.AddressID = padd.AddressID
+inner join polaris.polaris.polarisusers pu with (nolock)
+on p.creatorID = pu.PolarisUserID
+where pr.registrationDate < DATEADD(day, -7, GETDATE())
+and addr.AddressID in (select AddressID from Polaris.polaris.Addresses with (nolock) where StreetOne NOT LIKE '%[0-9]%')
+and p.PatronCodeID != 5;
+	
+end
+
