@@ -64,8 +64,8 @@ on addr.AddressID = padd.AddressID
 inner join polaris.polaris.polarisusers pu with (nolock)
 on p.creatorID = pu.PolarisUserID
 where pr.registrationDate < DATEADD(day, -7, GETDATE())
-and addr.AddressID in (select AddressID from Polaris.polaris.Addresses with (nolock) where StreetOne NOT LIKE '%[0-9]%')
-and p.PatronCodeID != 5;
+and addr.AddressID in (select AddressID from Polaris.polaris.Addresses with (nolock) where StreetOne NOT LIKE "%[0-9]%")
+and p.PatronCodeID != 5;'
 	
 end
 
