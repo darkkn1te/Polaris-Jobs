@@ -18,6 +18,7 @@ inner join polaristransactions.polaris.TransactionDetails td (nolock)
 on th.TransactionID = td.TransactionID
 where th.transactiontypeid = 6002 
 and td.TransactionSubTypeID = 128
+and th.TransactionDate between '2023-03-01' and '2023-04-01'
 and td.numValue in (6,56)
 group by o.name, convert(date, th.transactiondate)
 order by convert(date, th.transactiondate)
