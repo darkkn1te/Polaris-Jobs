@@ -1,0 +1,25 @@
+select count(th.organizationID), convert(date, th.transactiondate) from polaristransactions.polaris.transactionheaders as th (nolock)
+group by convert(date, th.transactiondate)
+
+--This will count all organizationIDs from transactionheaders on a specific date grouped by the date.
+
+select th.organizationid, count(th.organizationID), convert(date, th.transactiondate) from polaristransactions.polaris.transactionheaders as th (nolock)
+group by th.organizationid, convert(date, th.transactiondate)
+order by convert(date, th.transactiondate)
+
+--This counts orgIDs on specific dates grouped by orgID and date and ordered by date
+
+select o.name, count(o.name), convert(date, th.transactiondate) from polaristransactions.polaris.transactionheaders as th (nolock)
+inner join polaris.polaris.Workstations w (nolock) 
+on th.workstationid = w.WorkstationID 
+inner join polaris.polaris.organizations o (nolock) 
+on w.OrganizationID = o.OrganizationID 
+inner join polaristransactions.polaris.TransactionDetails td (nolock)
+on th.TransactionID = td.TransactionID
+where th.transactiontypeid = 6002 
+and td.TransactionSubTypeID = 128
+and td.numValue in (6,56)
+group by o.name, convert(date, th.transactiondate)
+order by convert(date, th.transactiondate)
+
+--So this one should work for finding in house use
