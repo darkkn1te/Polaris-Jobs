@@ -1,4 +1,4 @@
-select * from polaristransactions.Polaris.TransactionHeaders as th
+select count(*) from polaristransactions.Polaris.TransactionHeaders as th
 inner join polaristransactions.Polaris.TransactionDetails as td
 on th.TransactionID = td.TransactionID
 where td.TransactionSubTypeID = '4'
