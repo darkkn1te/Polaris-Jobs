@@ -2,5 +2,6 @@ select * from polaristransactions.Polaris.TransactionHeaders as th
 inner join polaristransactions.Polaris.TransactionDetails as td
 on th.TransactionID = td.TransactionID
 where td.TransactionSubTypeID = '4'
+and th.TransactionTypeID = '6001'
 and td.numValue in ('3', '6', '7', '9', '19', '26', '38')
 and th.TransactionDate between '04-01-2023' and '05-01-2023'
