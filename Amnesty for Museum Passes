@@ -6,5 +6,18 @@ on pr.PatronID = p.PatronID
 inner join polaris.polaris.viewpatronaddresses as vpa
 on v.PatronID = vpa.PatronID
 where v.MaterialTypeID = '18'
-and v.FeeReasonCodeID in ('0', '-1')
+and v.FeeReasonCodeID in ('0', '-1') -- '0' is overdue and '-1' is replacement fee
 and v.OutstandingAmount > 0
+
+--For all outstanding fees
+select distinct v.ItemBarcode, v.BrowseTitle, v.TxnDate, v. OutstandingAmount, v.ChargingOrgName, p.Barcode, pr.PatronFullName, vpa.PostalCode  from polaris.polaris.ViewManualBillNoticesData as v
+inner join polaris.polaris.patronregistration as pr
+on v.PatronID = pr.PatronID
+inner join polaris.polaris.patrons as p
+on pr.PatronID = p.PatronID
+inner join polaris.polaris.viewpatronaddresses as vpa
+on v.PatronID = vpa.PatronID
+inner join polaris.polaris.ViewPatronRegistration as vpr
+on v.PatronID = vpr.PatronID
+where v.OutstandingAmount > 0
+and vpr.PatronCodeID NOT IN ('9','11') --for filtering out Reciprocal Borrowers
