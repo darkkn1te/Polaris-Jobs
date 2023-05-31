@@ -21,3 +21,17 @@ inner join polaris.polaris.ViewPatronRegistration as vpr
 on v.PatronID = vpr.PatronID
 where v.OutstandingAmount > 0
 and vpr.PatronCodeID NOT IN ('9','11') --for filtering out Reciprocal Borrowers
+
+--For Abby. Outstanding fines NOT distinct ordered by year
+select v.ItemBarcode, v.BrowseTitle, YEAR(v.TxnDate), v. OutstandingAmount, v.ChargingOrgName, p.Barcode, pr.PatronFullName, vpa.PostalCode  from polaris.polaris.ViewManualBillNoticesData as v with (nolock)
+inner join polaris.polaris.patronregistration as pr with (nolock)
+on v.PatronID = pr.PatronID
+inner join polaris.polaris.patrons as p with (nolock)
+on pr.PatronID = p.PatronID
+inner join polaris.polaris.viewpatronaddresses as vpa with (nolock)
+on v.PatronID = vpa.PatronID
+inner join polaris.polaris.ViewPatronRegistration as vpr with (nolock)
+on v.PatronID = vpr.PatronID
+where v.OutstandingAmount > 0
+and vpr.PatronCodeID NOT IN ('9','11') --for filtering out Reciprocal Borrowers
+order by YEAR(v.TxnDate) asc
