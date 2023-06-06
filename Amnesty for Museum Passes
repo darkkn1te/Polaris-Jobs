@@ -35,3 +35,13 @@ on v.PatronID = vpr.PatronID
 where v.OutstandingAmount > 0
 and vpr.PatronCodeID NOT IN ('9','11') --for filtering out Reciprocal Borrowers
 order by YEAR(v.TxnDate) asc
+
+--Final script for Abby 
+select distinct Year(v.TxnDate), SUM(v.OutstandingAmount)
+over (partition by Year(v.TxnDate))
+from polaris.polaris.ViewManualBillNoticesData as v with (nolock)
+inner join polaris.polaris.ViewPatronRegistration as vpr with (nolock)
+on v.PatronID = vpr.PatronID
+where v.OutstandingAmount > 0
+and vpr.PatronCodeID NOT IN ('9','11') --for filtering out Reciprocal Borrowers
+order by YEAR(v.TxnDate) asc
