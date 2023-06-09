@@ -22,6 +22,23 @@ on v.PatronID = vpr.PatronID
 where v.OutstandingAmount > 0
 and vpr.PatronCodeID NOT IN ('9','11') --for filtering out Reciprocal Borrowers
 
+--For Patrons who have outstanding charges that would block them outside of museum pass fees
+select distinct v.ItemBarcode, v.BrowseTitle, v.TxnDate, v. OutstandingAmount, v.ChargingOrgName, p.Barcode, pr.PatronFullName, vpa.PostalCode
+from (select * from polaris.polaris.ViewManualBillNoticesData
+where MaterialTypeID = '18'
+and FeeReasonCodeID in ('0', '-1') -- '0' is overdue and '-1' is replacement fee
+and OutstandingAmount > 0) as subquery
+inner join polaris.polaris.ViewManualBillNoticesData as v
+on subquery.PatronID = v.PatronID
+inner join polaris.polaris.patronregistration as pr
+on v.PatronID = pr.PatronID
+inner join polaris.polaris.patrons as p
+on pr.PatronID = p.PatronID
+inner join polaris.polaris.viewpatronaddresses as vpa
+on v.PatronID = vpa.PatronID
+where v.OutstandingAmount > '30'
+and not v.MaterialTypeID = '18'
+
 --For Abby. Outstanding fines NOT distinct ordered by year
 select v.ItemBarcode, v.BrowseTitle, YEAR(v.TxnDate), v. OutstandingAmount, v.ChargingOrgName, p.Barcode, pr.PatronFullName, vpa.PostalCode  from polaris.polaris.ViewManualBillNoticesData as v with (nolock)
 inner join polaris.polaris.patronregistration as pr with (nolock)
