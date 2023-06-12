@@ -1,0 +1,22 @@
+select o.name, mt.Description, count(o.name) 
+from polaristransactions.polaris.transactionheaders th with (nolock)
+inner join polaristransactions.polaris.transactiondetails td with (nolock)
+on th.transactionid = td.TransactionID
+and td.transactionsubtypeid = 60 -- subtype for item stat code
+inner join polaristransactions.polaris.transactiondetails td2 with (nolock)
+on th.transactionid = td2.TransactionID
+and td2.transactionsubtypeid = 4 -- subtype for material type
+inner join polaris.polaris.MaterialTypes mt with (nolock)
+on td2.numValue=mt.MaterialTypeID
+inner join polaris.polaris.organizations o with (nolock)
+on th.OrganizationID = o.OrganizationID
+inner join polaris.polaris.StatisticalCodes sc with (nolock)
+on td.numvalue = sc.StatisticalCodeID
+and th.organizationid = sc.OrganizationID
+where th.transactiontypeid = 6001
+and sc.StatisticalCodeID = '24'
+and th.transactiondate between '2023-05-01' and '2023-06-01'
+group by o.name, mt.Description
+order by o.name, mt.Description
+
+--Replace StatisticalCodeID with the current Statistical Code for One Book One Chicago
