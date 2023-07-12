@@ -1,0 +1,20 @@
+select pr.user3 as "Reciprocal Library", 
+pr.patronfullname as "Name", 
+a.streetone as "Address", 
+pc.city as "City", 
+pc.postalcode as "ZIP Code", 
+coalesce(pr.user2,'') as "Recip. Library Patron Barcode", 
+p.barcode as "CPL Patron Barcode"
+from polaris.polaris.patrons p (nolock)  
+inner join polaris.polaris.patronregistration pr (nolock) 
+on p.patronid = pr.PatronID 
+inner join polaris.polaris.PatronAddresses pad (nolock) 
+on p.patronid = pad.PatronID 
+inner join polaris.polaris.addresses a (nolock) 
+on pad.addressid = a.AddressID 
+inner join polaris.polaris.postalcodes pc (nolock) 
+on a.PostalCodeID = pc.PostalCodeID 
+where p.patroncodeid in (9,11) 
+and pad.AddressTypeID = 2 
+and pc.city = 'CHICAGO'
+order by pr.user3, pr.PatronFullName 
