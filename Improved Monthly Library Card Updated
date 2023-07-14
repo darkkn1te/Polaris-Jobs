@@ -1,0 +1,23 @@
+declare @PList TABLE (
+	PatronID INT,
+	WSID INT);
+
+INSERT INTO @PList (PatronID, WSID)
+SELECT DISTINCT  td.NumValue, th.WorkstationID
+FROM PolarisTransactions.Polaris.TransactionHeaders as th (NOLOCK)
+JOIN PolarisTransactions.Polaris.TransactionDetails as td (NOLOCK)
+ON th.TransactionID = td.TransactionID
+WHERE th.TranClientDate BETWEEN '2023-06-01' AND '2023-07-01'
+AND th.TransactionTypeID = '2003'
+AND td.TransactionSubTypeID = '6'
+
+Select LEFT(ws.DisplayName,2) AS BRANCH, Count (*) AS RN_RP
+FROM Polaris.Polaris.PatronRegistration as pr (NOLOCK)
+RIGHT JOIN @PLIST as pl (NOLOCK)
+ON pl.PatronID = pr.PatronID
+JOIN Polaris.Polaris.Workstations as ws (NOLOCK)
+ON pl.WSID = ws.WorkstationID
+WHERE pr.RegistrationDate < '2017-07-01'
+AND DATEDIFF (DAY, pr.UpdateDate, pr.ExpirationDate)  > '1094'
+GROUP BY LEFT (ws.DisplayName, 2)
+ORDER BY Left (ws.DisplayName, 2)
