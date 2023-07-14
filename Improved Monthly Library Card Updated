@@ -13,7 +13,7 @@ AND td.TransactionSubTypeID = '6'
 
 Select LEFT(ws.DisplayName,2) AS BRANCH, Count (*) AS RN_RP
 FROM Polaris.Polaris.PatronRegistration as pr (NOLOCK)
-RIGHT JOIN @PLIST as pl (NOLOCK)
+RIGHT JOIN @PLIST as pl
 ON pl.PatronID = pr.PatronID
 JOIN Polaris.Polaris.Workstations as ws (NOLOCK)
 ON pl.WSID = ws.WorkstationID
