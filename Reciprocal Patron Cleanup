@@ -4,7 +4,8 @@ a.streetone as "Address",
 pc.city as "City", 
 pc.postalcode as "ZIP Code", 
 coalesce(pr.user2,'') as "Recip. Library Patron Barcode", 
-p.barcode as "CPL Patron Barcode"
+p.barcode as "CPL Patron Barcode",
+o.DisplayName as "Branch"
 from polaris.polaris.patrons p (nolock)  
 inner join polaris.polaris.patronregistration pr (nolock) 
 on p.patronid = pr.PatronID 
@@ -13,7 +14,9 @@ on p.patronid = pad.PatronID
 inner join polaris.polaris.addresses a (nolock) 
 on pad.addressid = a.AddressID 
 inner join polaris.polaris.postalcodes pc (nolock) 
-on a.PostalCodeID = pc.PostalCodeID 
+on a.PostalCodeID = pc.PostalCodeID
+inner join polaris.polaris.Organizations o (nolock)
+on p.OrganizationID = o.OrganizationID
 where p.patroncodeid in (9,11) 
 and pad.AddressTypeID = 2 
 and pc.city = 'CHICAGO'
