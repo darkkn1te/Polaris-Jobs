@@ -1,0 +1,2 @@
+select ir.AssignedCollectionID, ir.Barcode, ir.ClassificationNumber, ir.LastCircTransactionDate, ir.LifetimeCircCount from polaris.polaris.ItemRecords as ir with (nolock)
+where datediff(year, ir.LastCircTransactionDate, getdate()) > 3
