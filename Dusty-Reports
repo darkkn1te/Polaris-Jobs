@@ -1,2 +1,10 @@
-select ir.AssignedCollectionID, ir.Barcode, ir.ClassificationNumber, ir.LastCircTransactionDate, ir.LifetimeCircCount from polaris.polaris.ItemRecords as ir with (nolock)
+select c.Name, ir.Barcode, ir.ClassificationNumber, br.BrowseAuthor, br.browseTitle, mt.Description, br.BibliographicRecordID, br.PublicationYear, ir.LastCircTransactionDate, ir.LifetimeCircCount, i.Description from polaris.polaris.ItemRecords as ir with (nolock)
+inner join Polaris.Polaris.BibliographicRecords as br with (nolock)
+on ir.AssociatedBibRecordID = br.BibliographicRecordID
+inner join Polaris.Polaris.Collections as c with (nolock)
+on ir.AssignedCollectionID = c.CollectionID
+inner join Polaris.Polaris.MaterialTypes as mt with (nolock)
+on ir.MaterialTypeID = mt.MaterialTypeID
+inner join Polaris.Polaris.ItemStatuses as i with (nolock)
+on ir.ItemStatusID = i.ItemStatusID
 where datediff(year, ir.LastCircTransactionDate, getdate()) > 3
