@@ -21,3 +21,20 @@ WHERE pr.RegistrationDate < '2017-07-01'
 AND DATEDIFF (DAY, pr.UpdateDate, pr.ExpirationDate)  > '1094'
 GROUP BY LEFT (ws.DisplayName, 2)
 ORDER BY Left (ws.DisplayName, 2)
+
+
+--another try without the table variable
+Select LEFT(ws.DisplayName, 2) as Branch, count(distinct td.NumValue) as Renew_Replace
+from Polaris.Polaris.PatronRegistration as pr with (nolock)
+join PolarisTransactions.Polaris.TransactionDetails as td with (nolock)
+on pr.PatronID = td.numValue
+join PolarisTransactions.Polaris.TransactionHeaders as th with (nolock)
+on td.TransactionID = th.TransactionID
+join Polaris.Polaris.Workstations as ws with (nolock)
+on th.WorkstationID = ws.WorkstationID
+where th.TransactionTypeID = '2003'
+and td.TransactionSubTypeID = '6'
+and th.TranClientDate between '2023-06-01' and '2023-07-01'
+and pr.RegistrationDate < '2017-07-01'
+and datediff(DAY, pr.UpdateDate, pr.ExpirationDate ) > '1094'
+group by left(ws.DisplayName, 2)
