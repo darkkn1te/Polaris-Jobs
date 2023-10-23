@@ -19,3 +19,20 @@ where th.TransactionTypeID = '6001'
 and td1.transactionsubtypeid = '38'
 and th.tranclientdate between '2023-04-01' and '2023-05-01'
 group by oi.BidID, br.BrowseTitle
+
+-- with Subquery instead of table variable
+Select oi.AssociatedBibRecordID, br.BrowseTitle, Count(*) as Circs
+from PolarisTransactions.Polaris.TransactionHeaders as th (nolock)
+join polaristransactions.polaris.TransactionDetails as td1 (nolock)
+on th.TransactionID = td1.TransactionID
+right join
+(Select cir.ItemRecordID, cir.AssociatedBibRecordID
+from polaris.polaris.circitemrecords as cir (nolock)
+where cir.AssociatedBibRecordID in ('2414525', '1636572', '1418950', '2402834', '2449500', '2411031', '2413779', '2254675', '1357416', '1399122', '577974','1979756', '468253', '2422143', '2419991')) as oi
+on td1.Numvalue = oi.ItemRecordID
+join Polaris.polaris.BibliographicRecords br (nolock)
+on oi.AssociatedBibRecordID = br.bibliographicRecordID
+where th.TransactionTypeID = '6001'
+and td1.transactionsubtypeid = '38'
+and th.tranclientdate between '2023-04-01' and '2023-05-01'
+group by oi.AssociatedBibRecordID, br.BrowseTitle
