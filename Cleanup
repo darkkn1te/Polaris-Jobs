@@ -1,0 +1,6 @@
+-- Patrons with chicago as city but postal code outside chicago
+select distinct pa.PatronID, vpa.City, vpa.State, vpa.County, vpa.PostalCode, vpa.StreetOne from polaris.polaris.PatronAddresses as pa with (nolock) 
+join polaris.polaris.ViewPatronAddresses as vpa with (nolock)
+on pa.AddressID = vpa.AddressID
+where left(vpa.PostalCode,3) <> '606'
+and vpa.City = 'CHICAGO'
