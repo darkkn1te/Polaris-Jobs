@@ -42,21 +42,23 @@ and datediff(DAY, pr.UpdateDate, pr.ExpirationDate ) > '1094'
 group by o.Name
 order by o.Name
 
--- subquery. Should work better, but maybe not
-Select o.Name as Branch, count(distinct td.NumValue) as Renew_Replace
+-- subquery. Should work better
+Select o.Name as Branch, count(*) as Renew_Replace
 from Polaris.Polaris.PatronRegistration as pr with (nolock)
-join PolarisTransactions.Polaris.TransactionDetails as td with (nolock)
-on pr.PatronID = td.numValue
-join PolarisTransactions.Polaris.TransactionHeaders as th with (nolock)
-on td.TransactionID = th.TransactionID
+right join 
+(select distinct td.numValue, th.WorkstationID
+from PolarisTransactions.Polaris.TransactionHeaders as th (NOLOCK)
+JOIN PolarisTransactions.Polaris.TransactionDetails as td (NOLOCK)
+ON th.TransactionID = td.TransactionID
+WHERE th.TranClientDate BETWEEN '2023-06-01' AND '2023-07-01'
+AND th.TransactionTypeID = '2003'
+AND td.TransactionSubTypeID = '6') as pl
+on pl.numValue = pr.PatronID
 join Polaris.Polaris.Workstations as ws with (nolock)
-on th.WorkstationID = ws.WorkstationID
+on pl.WorkstationID = ws.WorkstationID
 join Polaris.Polaris.Organizations as o with (nolock)
 on ws.OrganizationID = o.OrganizationID
-where th.TransactionTypeID = '2003'
-and td.TransactionSubTypeID = '6'
-and th.TranClientDate between '2023-06-01' and '2023-07-01'
-and pr.RegistrationDate < '2017-07-01'
-and datediff(DAY, pr.UpdateDate, pr.ExpirationDate ) > '1094'
+where pr.RegistrationDate < '2017-07-01'
+and DATEDIFF (DAY, pr.UpdateDate, pr.ExpirationDate)  > '1094'
 group by o.Name
 order by o.Name
