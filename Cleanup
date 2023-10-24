@@ -4,3 +4,51 @@ join polaris.polaris.ViewPatronAddresses as vpa with (nolock)
 on pa.AddressID = vpa.AddressID
 where left(vpa.PostalCode,3) <> '606'
 and vpa.City = 'CHICAGO'
+
+-- Patrons without numerical addresses registered in the past week
+SELECT
+	p.PatronID AS [PatronID],
+	p.Barcode AS [Barcode],
+	pc.Description AS [Patron Code],
+	pu.Name AS [Creator],
+	addr.StreetOne AS [Street One],
+	addr.StreetTwo AS [Street Two],
+	pos.City AS [City],
+	pos.State AS [State],
+	pos.County AS [County],
+	pos.PostalCode AS [ZIP Code],
+	o.Name AS [Registration Branch],
+	pr.RegistrationDate AS [Registration Date],
+	pr.ExpirationDate AS [Expiration Date]
+
+FROM
+	Polaris.Polaris.Patrons p WITH (NOLOCK)
+
+INNER JOIN -- Need to join to get patron addresses tied to the Addresses table
+	Polaris.Polaris.PatronAddresses padd WITH (NOLOCK)
+	ON (p.PatronID = padd.PatronID)
+INNER JOIN -- Join to get the actual address information
+	Polaris.Polaris.Addresses addr WITH (NOLOCK)
+	ON (addr.AddressID = padd.addressID)
+INNER JOIN -- City, State, County, and ZIP
+	Polaris.Polaris.PostalCodes pos WITH (NOLOCK)
+	ON (pos.PostalCodeID = addr.PostalCodeID)
+INNER JOIN -- Pulls Patron Code description
+	Polaris.Polaris.PatronCodes pc WITH (NOLOCK)
+	ON (p.PatronCodeID = pc.PatronCodeID)
+INNER JOIN -- Gets the username of whoever created the patron record
+	Polaris.Polaris.PolarisUsers pu WITH (NOLOCK)
+	ON (p.CreatorID = pu.PolarisUserID)
+INNER JOIN -- Gets the organization name for Registration Branch
+	Polaris.Polaris.Organizations o WITH (NOLOCK)
+	ON (o.OrganizationID = p.OrganizationID)
+INNER JOIN -- Gets the registration and expiration date
+	Polaris.Polaris.PatronRegistration pr WITH (NOLOCK)
+	ON (pr.PatronID = p.PatronID)
+
+WHERE
+	addr.AddressID IN (
+	SELECT AddressID FROM Polaris.Polaris.Addresses WITH (NOLOCK)
+	WHERE StreetOne NOT LIKE '%[0-9]%') -- Weeds out anything with numbers in the Street One address
+AND
+	pr.registrationDate < DATEADD(day, -7, GETDATE());
