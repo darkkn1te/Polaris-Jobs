@@ -1,7 +1,11 @@
-select count(*) from polaristransactions.Polaris.TransactionHeaders as th
-inner join polaristransactions.Polaris.TransactionDetails as td
+select mt.Description as MaterialType, count(*) as Count from polaristransactions.Polaris.TransactionHeaders as th with (nolock)
+inner join polaristransactions.Polaris.TransactionDetails as td with (nolock)
 on th.TransactionID = td.TransactionID
+inner join polaris.polaris.MaterialTypes as mt with (nolock)
+on td.numValue = mt.MaterialTypeID
 where td.TransactionSubTypeID = '4'
 and th.TransactionTypeID = '6001'
-and td.numValue in ('3', '6', '7', '9', '19', '26', '38') -- 3 = audiobook cd, 6 = descriptive dvd, 7 = descriptive vhs, 9 = dvd, 19 = music cd, 26 = vhs, 38 = blu-ray
-and th.TransactionDate between '04-01-2023' and '05-01-2023'
+and td.numValue in ('3', '6', '7', '9', '19', '26', '38') 
+and th.TransactionDate between '08-01-2023' and '09-01-2023'
+group by mt.Description
+order by mt.Description
