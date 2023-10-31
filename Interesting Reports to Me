@@ -1,0 +1,15 @@
+-- Top 50 items by YTD circs
+select top 50 cir.Barcode, br.BrowseAuthor, br.BrowseTitle, br.BrowseCallNo, cir.YTDCircCount, cir.LifetimeCircCount from polaris.polaris.CircItemRecords as cir with (nolock)
+join polaris.polaris.BibliographicRecords as br with (nolock)
+on br.BibliographicRecordID = cir.AssociatedBibRecordID
+where cir.YTDCircCount > 0
+and br.BrowseCallNo is not null --this filters out chromebooks
+order by cir.YTDCircCount desc
+
+-- Top 50 items by lifetime circs
+select top 50 cir.Barcode, br.BrowseAuthor, br.BrowseTitle, br.BrowseCallNo, cir.YTDCircCount, cir.LifetimeCircCount from polaris.polaris.CircItemRecords as cir with (nolock)
+join polaris.polaris.BibliographicRecords as br with (nolock)
+on br.BibliographicRecordID = cir.AssociatedBibRecordID
+where cir.LifetimeCircCount > 0
+and br.BrowseCallNo is not null
+order by cir.LifetimeCircCount desc
