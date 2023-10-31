@@ -13,3 +13,18 @@ on br.BibliographicRecordID = cir.AssociatedBibRecordID
 where cir.LifetimeCircCount > 0
 and br.BrowseCallNo is not null
 order by cir.LifetimeCircCount desc
+
+-- Top circulating items by branch. Doesn't quite work yet
+select o.Name as Branch, cir.ItemRecordID,  count(*) as Count from polaris.polaris.CircItemRecords as cir with (nolock)
+join polaristransactions.polaris.TransactionDetails as td with (nolock)
+on td.numValue = cir.ItemRecordID
+join polaristransactions.polaris.TransactionHeaders as th with (nolock)
+on td.TransactionID = th.TransactionID
+join polaris.polaris.BibliographicRecords as br with (nolock)
+on cir.AssociatedBibRecordID = br.BibliographicRecordID
+join polaris.polaris.Organizations as o with (nolock)
+on o.OrganizationID = th.OrganizationID
+where th.TransactionTypeID = '6001'
+and th.TransactionDate between '08-01-2023' and '08-31-2023'
+group by o.Name, cir.ItemRecordID
+order by Count desc
