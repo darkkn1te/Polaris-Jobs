@@ -1,0 +1,10 @@
+select o.name, count(*) from polaristransactions.polaris.TransactionHeaders as th (nolock)
+join polaristransactions.polaris.TransactionDetails as td (nolock)
+on th.TransactionID = td.TransactionID
+join polaris.polaris.Organizations as o (nolock)
+on o.OrganizationID = th.OrganizationID
+where th.TransactionTypeID = '6001'
+and td.TransactionSubTypeID = '4'
+and td.numValue = '39'
+and th.TransactionDate between '2023-07-01' and '2023-09-30'
+group by o.name
