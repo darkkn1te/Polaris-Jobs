@@ -1,0 +1,8 @@
+select * from polaris.polaris.BibliographicTags as bt (nolock)
+join polaris.polaris.BibliographicSubfields as bs (nolock)
+on bt.BibliographicTagID = bs.BibliographicTagID
+where bt.TagNumber = '37'
+and bs.Subfield = 'n'
+and bs.data like 'http%overdrive%'
+
+--This joins all the tags and subfields and gets only the 037 tags with subfield n. 
