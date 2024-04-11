@@ -1,0 +1,15 @@
+select  o.name as Branch, c.name as Collection, count(*) as Count from polaristransactions.Polaris.TransactionHeaders as th with (nolock)
+inner join polaristransactions.Polaris.TransactionDetails as td1 with (nolock)
+on th.TransactionID = td1.TransactionID
+inner join PolarisTransactions.Polaris.TransactionDetails as td2 with (nolock)
+on th.TransactionID = td2.TransactionID
+inner join polaris.polaris.Collections as c with (nolock)
+on td1.numValue = c.CollectionID
+inner join polaris.polaris.Organizations as o with (nolock)
+on td2.numValue = o.OrganizationID
+where td1.TransactionSubTypeID = '61'
+and td2.TransactionSubTypeID = '125'
+and th.TransactionTypeID = '6001'
+and th.TransactionDate between '01-01-2024' and '02-01-2024'
+group by o.name, c.name
+order by o.name, c.name
