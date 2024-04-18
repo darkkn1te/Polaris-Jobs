@@ -1,0 +1,18 @@
+select br.BrowseTitle as Title, count(*) as Count from polaristransactions.Polaris.TransactionHeaders as th with (nolock)
+inner join polaristransactions.Polaris.TransactionDetails as td1 with (nolock)
+on th.TransactionID = td1.TransactionID
+inner join PolarisTransactions.Polaris.TransactionDetails as td2 with (nolock)
+on th.TransactionID = td2.TransactionID
+inner join polaris.polaris.MaterialTypes as mt with (nolock)
+on td1.numValue = mt.MaterialTypeID
+inner join Polaris.Polaris.ItemRecords as ir with (nolock)
+on td2.numValue = ir.ItemRecordID
+inner join Polaris.Polaris.BibliographicRecords as br with (nolock)
+on ir.AssociatedBibRecordID = br.BibliographicRecordID
+where td1.TransactionSubTypeID = '4'
+and th.TransactionTypeID = '6001'
+and td1.numValue = '39'
+and td2.TransactionSubTypeID = '38'
+and th.TransactionDate between '01-01-2024' and '04-01-2024'
+group by br.BrowseTitle
+order by br.BrowseTitle
