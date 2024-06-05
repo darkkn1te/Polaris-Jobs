@@ -1,0 +1,5 @@
+select count(*) from Polaris.Polaris.PatronRegistration as pr (nolock)
+join Polaris.Polaris.Patrons as p (nolock)
+on pr.PatronID = p.PatronID
+where pr.RegistrationDate = cast(dateadd(day, -1, getdate()) as date) 
+and p.PatronCodeID = '5'
