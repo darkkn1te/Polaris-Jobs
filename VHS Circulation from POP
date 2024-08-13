@@ -1,0 +1,22 @@
+select o.name as Branch, c.name as Collection, mt.Description as MaterialType, count(*) as Count from polaristransactions.Polaris.TransactionHeaders as th with (nolock)
+inner join polaristransactions.Polaris.TransactionDetails as td1 with (nolock)
+on th.TransactionID = td1.TransactionID
+inner join PolarisTransactions.Polaris.TransactionDetails as td2 with (nolock)
+on th.TransactionID = td2.TransactionID
+inner join PolarisTransactions.Polaris.TransactionDetails as td3 with (nolock)
+on th.TransactionID = td3.TransactionID
+inner join polaris.polaris.Collections as c with (nolock)
+on td1.numValue = c.CollectionID
+inner join Polaris.Polaris.Organizations as o with (nolock)
+on td2.numValue = o.OrganizationID
+inner join polaris.polaris.MaterialTypes as mt with (nolock)
+on td3.numValue = mt.MaterialTypeID
+where td1.TransactionSubTypeID = '61'
+and td2.TransactionSubTypeID = '125'
+and td3.TransactionSubTypeID = '4'
+and mt.MaterialTypeID = '26'
+and c.CollectionID in ('1','3','4')
+and th.TransactionTypeID = '6001'
+and th.TransactionDate between '01-01-2024' and '02-01-2024'
+group by o.name, c.name, mt.Description
+order by o.name, c.name, mt.Description
