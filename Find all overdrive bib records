@@ -6,3 +6,5 @@ and bs.Subfield = 'n'
 and bs.data like 'http%overdrive%'
 
 --This joins all the tags and subfields and gets only the 037 tags with subfield n. 
+--To put it into a record set change select from * to BibliographicRecordID
+--Then use the query in the find tool in polaris and send results to a new record set in settings
