@@ -1,0 +1,8 @@
+-- This finds all the item records with an associated bib record associated with the authority recordid 1083982
+
+select * from Polaris.Polaris.CircItemRecords as cir with (nolock)
+inner join Polaris.Polaris.BibliographicRecords as br with (nolock)
+on cir.AssociatedBibRecordID = br.BibliographicRecordID
+inner join Polaris.Polaris.BibSubjectIndices as bsi with (nolock)
+on bsi.BibliographicRecordID = br.BibliographicRecordID
+where bsi.AuthorityRecordID = '1083982'
