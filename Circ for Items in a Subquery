@@ -1,0 +1,17 @@
+select o.name, mt.Description, count(o.name) 
+from polaristransactions.polaris.transactionheaders th with (nolock)
+inner join polaristransactions.polaris.TransactionDetails as td (nolock)
+on th.TransactionID = td.TransactionID
+and td.TransactionSubTypeID = 38 -- subtype for ItemRecordID
+inner join polaristransactions.polaris.transactiondetails td2 with (nolock)
+on th.transactionid = td2.TransactionID
+and td2.transactionsubtypeid = 4 -- subtype for material type
+inner join polaris.polaris.MaterialTypes mt with (nolock)
+on td2.numValue=mt.MaterialTypeID
+inner join polaris.polaris.organizations o with (nolock)
+on th.OrganizationID = o.OrganizationID
+where th.transactiontypeid = 6001
+and td.numValue in (select itemrecordid from polaris.polaris.CircItemRecords as cir where cir.StatisticalCodeID = '26')
+and th.transactiondate between '2024-09-04' and '2024-12-31'
+
+--Use if statistical code wasn't set up to take statistics for things
