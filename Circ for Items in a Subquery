@@ -1,4 +1,4 @@
-select o.name, mt.Description, count(o.name) 
+select o.name, mt.Description, br.BrowseTitle, br.MARCLanguage, count(o.name) 
 from polaristransactions.polaris.transactionheaders th with (nolock)
 inner join polaristransactions.polaris.TransactionDetails as td (nolock)
 on th.TransactionID = td.TransactionID
@@ -10,8 +10,14 @@ inner join polaris.polaris.MaterialTypes mt with (nolock)
 on td2.numValue=mt.MaterialTypeID
 inner join polaris.polaris.organizations o with (nolock)
 on th.OrganizationID = o.OrganizationID
+inner join polaris.polaris.CircItemRecords as cir with (nolock)
+on td.numValue = cir.ItemRecordID
+inner join polaris.polaris.BibliographicRecords as br with (nolock)
+on cir.AssociatedBibRecordID = br.BibliographicRecordID
 where th.transactiontypeid = 6001
 and td.numValue in (select itemrecordid from polaris.polaris.CircItemRecords as cir where cir.StatisticalCodeID = '26')
 and th.transactiondate between '2024-09-04' and '2024-12-31'
+group by o.name, mt.Description, br.BrowseTitle, br.MARCLanguage
+order by o.name, mt.Description, br.BrowseTitle, br.MARCLanguage
 
 --Use if statistical code wasn't set up to take statistics for things
