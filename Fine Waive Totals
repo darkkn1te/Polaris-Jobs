@@ -1,0 +1,7 @@
+select o.name as "Location", sum(pa.TxnAmount) as "Total Waives" from polaris.polaris.patronaccount pa (nolock)
+inner join polaris.polaris.organizations o (nolock)
+on pa.OrganizationID = o.organizationid
+where pa.txncodeid in (5,6)
+and pa.txndate between '2023-01-01' and '2023-12-31'
+group by o.name
+order by o.name
