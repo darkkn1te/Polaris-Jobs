@@ -8,3 +8,20 @@ on ir.MaterialTypeID = mt.MaterialTypeID
 inner join Polaris.Polaris.ItemStatuses as i with (nolock)
 on ir.ItemStatusID = i.ItemStatusID
 where datediff(year, ir.LastCircTransactionDate, getdate()) > 3
+
+
+//query for Reporting Services
+
+select c.Name, ir.Barcode, ir.ClassificationNumber, br.BrowseAuthor, br.browseTitle, mt.Description, br.BibliographicRecordID, br.PublicationYear, ir.LastCircTransactionDate, ir.LifetimeCircCount, i.Description as "Item Status" from polaris.polaris.ItemRecords as ir with (nolock)
+inner join Polaris.Polaris.BibliographicRecords as br with (nolock)
+on ir.AssociatedBibRecordID = br.BibliographicRecordID
+inner join Polaris.Polaris.Collections as c with (nolock)
+on ir.AssignedCollectionID = c.CollectionID
+inner join Polaris.Polaris.MaterialTypes as mt with (nolock)
+on ir.MaterialTypeID = mt.MaterialTypeID
+inner join Polaris.Polaris.ItemStatuses as i with (nolock)
+on ir.ItemStatusID = i.ItemStatusID
+where datediff(year, ir.LastCircTransactionDate, getdate()) > 3
+and ir.ItemStatusID = '1'
+and ir.AssignedBranchID = @branch
+and ir.AssignedCollectionID = @collection
