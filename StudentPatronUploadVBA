@@ -94,3 +94,9 @@ Sub FillColumns()
 
 End Sub
 
+Sub ClearRow1()
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets("Sheet2")
+
+    ws.Rows(1).ClearContents
+End Sub
