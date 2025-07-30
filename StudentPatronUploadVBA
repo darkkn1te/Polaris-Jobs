@@ -54,3 +54,42 @@ Sub TransferDataToSheet2()
         
     Next i
 End Sub
+
+Sub FillColumns()
+    Dim ws As Worksheet
+    Dim lastRow As Long
+
+    Set ws = ThisWorkbook.Sheets("Sheet2")
+
+    ' Find last row with data in column C
+    lastRow = ws.Cells(ws.Rows.Count, "C").End(xlUp).Row
+
+    ' Fill columns from row 2 to lastRow with data
+    ws.Range("A2:A" & lastRow).Value = "7"
+    ws.Range("H2:H" & lastRow).Value = "16"
+    ws.Range("I2:I" & lastRow).Value = "86"
+    ws.Range("M2:M" & lastRow).Value = "1"
+    ws.Range("O2:O" & lastRow).Value = "1"
+    ws.Range("S2:S" & lastRow).Value = "0"
+    ws.Range("S2:S" & lastRow).Value = "0"
+    ws.Range("Z2:Z" & lastRow).Value = "0"
+    ws.Range("AA2:AA" & lastRow).Value = "0"
+    ws.Range("AB2:AB" & lastRow).Value = "0"
+    ws.Range("AC2:AC" & lastRow).Value = "0"
+    ws.Range("AD2:AD" & lastRow).Value = "0"
+    ws.Range("AE2:AE" & lastRow).Value = "0"
+    ws.Range("AF2:AF" & lastRow).Value = "~Home"
+    ws.Range("AG2:AG" & lastRow).Value = "1"
+    ws.Range("AK2:AK" & lastRow).Value = "Chicago"
+    ws.Range("AL2:AL" & lastRow).Value = "IL"
+    ws.Range("AP2:AP" & lastRow).Value = "1"
+    ws.Range("BA2:BA" & lastRow).Value = "2"
+    ws.Range("BC2:BC" & lastRow).Value = "0"
+    ws.Range("BD2:BD" & lastRow).Value = "2"
+    ws.Range("BF2:BF" & lastRow).Value = "0"
+    ws.Range("BG2:BG" & lastRow).Value = "0"
+    ws.Range("BH2:BH" & lastRow).Value = "0"
+    ws.Range("BN2:BN" & lastRow).Value = "0"
+
+End Sub
+
