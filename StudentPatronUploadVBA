@@ -90,6 +90,7 @@ Sub FillColumns()
     ws.Range("BG2:BG" & lastRow).Value = "0"
     ws.Range("BH2:BH" & lastRow).Value = "0"
     ws.Range("BN2:BN" & lastRow).Value = "0"
+    ws.Range("K2:K" & lastRow).Value = DateValue("08-01-2025")
 
 End Sub
 
