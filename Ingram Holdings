@@ -1,0 +1,8 @@
+select data from polaris.polaris.BibliographicSubfields as bs (nolock)
+inner join polaris.polaris.bibliographictags as bt (nolock)
+on bs.BibliographicTagID = bt.BibliographicTagID
+inner join polaris.polaris.BibliographicRecords as br (nolock)
+on bt.BibliographicRecordID = br.BibliographicRecordID
+where br.MARCBibType = 'a'
+and bs.Subfield = 'a'
+and bt.TagNumber = '20'
