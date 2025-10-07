@@ -1,6 +1,6 @@
 select * from polaris.polaris.PatronRegistration as pr (nolock)
 inner join Polaris.Polaris.Patrons as p (nolock)
 on pr.PatronID = p.PatronID
-where pr.MergeDate > '04-18-2025'
+where pr.MergeDate > '08-01-2025'
 and pr.FormerID like 'EC%'
 --or pr.FormerID like 'PACREG%'
