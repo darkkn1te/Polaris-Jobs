@@ -36,21 +36,28 @@ Sub TransferDataToSheet2()
     lastRow = wsSource.Cells(wsSource.Rows.Count, "A").End(xlUp).Row
 
     For i = 1 To lastRow
-        ' Copy column A from Sheet1 to column J in Sheet2
-        wsTarget.Cells(i, "J").Value = wsSource.Cells(i, "A").Value
+        ' Copy column B from Sheet1 to column J in Sheet2
+        wsTarget.Cells(i, "J").Value = wsSource.Cells(i, "B").Value
 
-        ' Copy column G from Sheet1 to column N and AM in Sheet2
-        wsTarget.Cells(i, "N").Value = wsSource.Cells(i, "G").Value
-        wsTarget.Cells(i, "AM").Value = wsSource.Cells(i, "G").Value
+        ' Copy column C from Sheet1 to Column C in Sheet2
+        wsTarget.Cells(i, "C").Value = wsSource.Cells(i, "C").Value
+
+        ' Copy column D from Sheet1 to Column D in Sheet2
+        wsTarget.Cells(i, "D").Value = wsSource.Cells(i, "D").Value
+
+        ' Copy column O from Sheet1 to column N and AM in Sheet2
+        cellValue = wsSource.Cells(i, "O").Value
+        wsTarget.Cells(i, "N").Value = Left(cellValue, 5)
+        wsTarget.Cells(i, "AM").Value = Left(cellValue, 5)
         
         ' Copy column I from Sheet1 to Column Q in Sheet2
         wsTarget.Cells(i, "Q").Value = wsSource.Cells(i, "I").Value
         
-        ' Copy column E from Sheet1 to Column AH in Sheet2
-        wsTarget.Cells(i, "AH").Value = wsSource.Cells(i, "E").Value
+        ' Copy column G from Sheet1 to Column AH in Sheet2
+        wsTarget.Cells(i, "AH").Value = wsSource.Cells(i, "G").Value
         
-        ' Copy column F from Sheet1 to Column AR in Sheet2
-        wsTarget.Cells(i, "AR").Value = wsSource.Cells(i, "F").Value
+        ' Copy column L from Sheet1 to Column AR in Sheet2
+        wsTarget.Cells(i, "AR").Value = wsSource.Cells(i, "L").Value
         
     Next i
 End Sub
@@ -78,7 +85,7 @@ Sub FillColumns()
     ws.Range("AC2:AC" & lastRow).Value = "0"
     ws.Range("AD2:AD" & lastRow).Value = "0"
     ws.Range("AE2:AE" & lastRow).Value = "0"
-    ws.Range("AF2:AF" & lastRow).Value = "~Home"
+    ws.Range("AF2:AF" & lastRow).Value = "~School"
     ws.Range("AG2:AG" & lastRow).Value = "1"
     ws.Range("AK2:AK" & lastRow).Value = "Chicago"
     ws.Range("AL2:AL" & lastRow).Value = "IL"
@@ -90,7 +97,7 @@ Sub FillColumns()
     ws.Range("BG2:BG" & lastRow).Value = "0"
     ws.Range("BH2:BH" & lastRow).Value = "0"
     ws.Range("BN2:BN" & lastRow).Value = "0"
-    ws.Range("K2:K" & lastRow).Value = DateValue("08-01-2025")
+    ws.Range("K2:K" & lastRow).Value = DateValue("11-01-2026")
 
 End Sub
 
