@@ -119,8 +119,8 @@ Sub FinalFillColumns()
     'Fill columns with default data
     
         ws.Range("A1").Value = 1
-        ws.Range("B1").Value = TimeValue("00:00:00")
-        ws.Range("C1").Value = DateValue("12/1/2025")
+        ws.Range("B1").Value = "00:00:00"
+        ws.Range("C1").Value = "12/1/2025"
         ws.Range("D1").Value = 34
         ws.Range("E1").Value = 1784
         ws.Range("F1").Value = 2262
