@@ -1,0 +1,14 @@
+select distinct gs.GroupName, crd.ControlRecordName, pn.PermissionName from polaris.polaris.permissiongroups as pg
+inner join polaris.polaris.controlrecords as cr
+on cr.ControlRecordID = pg.ControlRecordID
+inner join polaris.polaris.ControlRecordDefs as crd
+on cr.ControlRecordDefID = crd.ControlRecordDefID
+inner join polaris.polaris.Groups as gs
+on gs.GroupID = pg.GroupID
+inner join polaris.polaris.PermissionDefs as pd
+on pd.PermissionID = pg.PermissionID
+inner join polaris.polaris.PermissionNames as pn
+on pd.PermissionNameID = pn.PermissionNameID
+where pg.GroupID = '33'
+
+--Change GroupID for whatever group. 33 is 10 Pages.
