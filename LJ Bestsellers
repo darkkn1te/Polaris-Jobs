@@ -265,3 +265,173 @@ on (select top 1 cir.materialtypeid from polaris.polaris.circitemrecords cir (no
 where cir.AssociatedBibRecordID = lj.bibliographicrecordid) = m.MaterialTypeID  
 where m.description in ('board book', 'hardcover book', 'trade paperback', 'mass market paperback')  
 order by (lj.circs + lj.holds) desc
+
+
+--
+
+--Script redone by AI. Not sure if it works the same yet.
+/* Clean up any prior temp tables */
+DROP TABLE IF EXISTS #BibsWithCircsAndHolds;
+DROP TABLE IF EXISTS #RecentCheckouts;
+DROP TABLE IF EXISTS #HoldsFromTransactionFile;
+DROP TABLE IF EXISTS #RecentHoldRequests;
+
+/*--------------------------------------------------------------------
+  1. Recent Checkouts
+--------------------------------------------------------------------*/
+CREATE TABLE #RecentCheckOuts   
+(    
+    BibliographicRecordID INT PRIMARY KEY CLUSTERED,    
+    RecentCheckOuts INT NOT NULL 
+);
+
+INSERT INTO #RecentCheckOuts
+SELECT
+    cir.AssociatedBibRecordID,
+    COUNT(*) AS RecentCheckOuts
+FROM PolarisTransactions.Polaris.TransactionHeaders th WITH (NOLOCK)
+JOIN PolarisTransactions.Polaris.TransactionDetails td WITH (NOLOCK)
+      ON td.TransactionID = th.TransactionID
+     AND td.TransactionTypeID = 6001
+     AND td.TransactionSubTypeID = 38
+JOIN Polaris.Polaris.CircItemRecords cir WITH (NOLOCK)
+      ON cir.ItemRecordID = td.numValue
+WHERE th.TranClientDate >= '2023-10-01'
+  AND th.TranClientDate <  '2023-11-01'
+  AND td.numValue IS NOT NULL
+GROUP BY cir.AssociatedBibRecordID;
+
+/*--------------------------------------------------------------------
+  2. Hold Requests (from transaction log)
+--------------------------------------------------------------------*/
+CREATE TABLE #HoldsFromTransactionFile (BibliographicRecordIdT INT);
+
+CREATE INDEX IX_Holds_BibId ON #HoldsFromTransactionFile (BibliographicRecordIdT);
+
+INSERT INTO #HoldsFromTransactionFile 
+SELECT td.numValue
+FROM PolarisTransactions.Polaris.TransactionHeaders th WITH (NOLOCK)
+JOIN PolarisTransactions.Polaris.TransactionDetails td WITH (NOLOCK)
+      ON td.TransactionID = th.TransactionID
+     AND td.TransactionTypeID = 6005
+     AND td.TransactionSubTypeID = 36
+WHERE th.TranClientDate >= '2023-10-01'
+  AND th.TranClientDate <  '2023-11-01'
+  AND td.numValue IS NOT NULL;
+
+/*--------------------------------------------------------------------
+  3. Filter to valid bibs, correcting 035 control numbers
+--------------------------------------------------------------------*/
+
+;WITH ValidBibIds AS (
+    SELECT br.BibliographicRecordID
+    FROM Polaris.Polaris.BibliographicRecords br WITH (NOLOCK)
+    WHERE br.RecordStatusID = 1
+)
+UPDATE h
+SET BibliographicRecordIdT = i.BibliographicRecordID
+FROM #HoldsFromTransactionFile h
+OUTER APPLY (
+    SELECT TOP 1 CAST(i.SystemControlNumber AS INT) AS scn,
+                 i.BibliographicRecordID
+    FROM Polaris.Polaris.BibliographicTag035Index i WITH (NOLOCK)
+    WHERE TRY_CONVERT(INT, i.SystemControlNumber) = h.BibliographicRecordIdT
+    ORDER BY i.BibliographicRecordID DESC
+) i
+WHERE h.BibliographicRecordIdT NOT IN (SELECT BibliographicRecordID FROM ValidBibIds);
+
+/*--------------------------------------------------------------------
+  4. Aggregate recent holds
+--------------------------------------------------------------------*/
+CREATE TABLE #RecentHoldRequests
+(
+    BibliographicRecordID INT PRIMARY KEY CLUSTERED,
+    RecentHoldRequests INT NOT NULL
+);
+
+INSERT INTO #RecentHoldRequests
+SELECT BibliographicRecordIdT, COUNT(*)
+FROM #HoldsFromTransactionFile
+WHERE BibliographicRecordIdT IS NOT NULL
+GROUP BY BibliographicRecordIdT;
+
+/*--------------------------------------------------------------------
+  5. Combine Circs + Holds into one table
+--------------------------------------------------------------------*/
+CREATE TABLE #BibsWithCircsAndHolds
+(
+    BibliographicRecordID INT PRIMARY KEY,
+    Circs INT,
+    Holds INT,
+    BrowseAuthor NVARCHAR(255),
+    BrowseTitle NVARCHAR(255)
+);
+
+INSERT INTO #BibsWithCircsAndHolds
+SELECT 
+    br.BibliographicRecordID,
+    COALESCE(rco.RecentCheckOuts, 0) AS Circs,
+    COALESCE(rhr.RecentHoldRequests, 0) AS Holds,
+    br.BrowseAuthor,
+    br.BrowseTitle
+FROM Polaris.Polaris.BibliographicRecords br WITH (NOLOCK)
+LEFT JOIN #RecentCheckOuts rco ON rco.BibliographicRecordID = br.BibliographicRecordID
+LEFT JOIN #RecentHoldRequests rhr ON rhr.BibliographicRecordID = br.BibliographicRecordID
+WHERE COALESCE(rco.RecentCheckOuts,0) > 1
+   OR COALESCE(rhr.RecentHoldRequests,0) > 1;
+
+/*--------------------------------------------------------------------
+  6. Final query using APPLY instead of scalar subqueries
+--------------------------------------------------------------------*/
+
+SELECT TOP 1000
+    lj.BibliographicRecordID,
+    lj.Circs,
+    lj.Holds,
+    (lj.Circs + lj.Holds) AS CombinedTransactions,
+    COALESCE(lj.BrowseAuthor,'') AS Author,
+    lj.BrowseTitle AS Title,
+    coll.Name AS Collection,
+    m.Description AS MaterialType,
+    isbn.ISBNString AS ISBN,
+    callnum.CallNumber,
+    br.PublicationYear
+FROM #BibsWithCircsAndHolds lj WITH (NOLOCK)
+
+OUTER APPLY (
+    SELECT TOP 1 c.Name
+    FROM Polaris.Polaris.CircItemRecords cir WITH (NOLOCK)
+    JOIN Polaris.Polaris.Collections c WITH (NOLOCK)
+      ON c.CollectionID = cir.AssignedCollectionID
+    WHERE cir.AssociatedBibRecordID = lj.BibliographicRecordID
+      AND cir.AssignedBranchID <> 34
+) coll
+
+OUTER APPLY (
+    SELECT TOP 1 i.ISBNString
+    FROM Polaris.Polaris.BibliographicISBNIndex i WITH (NOLOCK)
+    WHERE i.BibliographicRecordID = lj.BibliographicRecordID
+) isbn
+
+OUTER APPLY (
+    SELECT TOP 1 ird.CallNumber
+    FROM Polaris.Polaris.ItemRecordDetails ird WITH (NOLOCK)
+    JOIN Polaris.Polaris.CircItemRecords cir WITH (NOLOCK)
+      ON ird.ItemRecordID = cir.ItemRecordID
+    WHERE cir.AssociatedBibRecordID = lj.BibliographicRecordID
+) callnum
+
+LEFT JOIN Polaris.Polaris.BibliographicRecords br WITH (NOLOCK)
+       ON br.BibliographicRecordID = lj.BibliographicRecordID
+
+OUTER APPLY (
+    SELECT TOP 1 cir.MaterialTypeID
+    FROM Polaris.Polaris.CircItemRecords cir WITH (NOLOCK)
+    WHERE cir.AssociatedBibRecordID = lj.BibliographicRecordID
+) mt
+
+LEFT JOIN Polaris.Polaris.MaterialTypes m WITH (NOLOCK)
+       ON m.MaterialTypeID = mt.MaterialTypeID
+
+WHERE m.Description IN ('board book', 'hardcover book', 'trade paperback', 'mass market paperback')
+ORDER BY CombinedTransactions DESC;
