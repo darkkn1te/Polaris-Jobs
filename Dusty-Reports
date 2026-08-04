@@ -7,7 +7,7 @@ inner join Polaris.Polaris.MaterialTypes as mt with (nolock)
 on ir.MaterialTypeID = mt.MaterialTypeID
 inner join Polaris.Polaris.ItemStatuses as i with (nolock)
 on ir.ItemStatusID = i.ItemStatusID
-where datediff(year, ir.LastCircTransactionDate, getdate()) > 3
+where ir.LastCircTransactionDate < dateadd(year, -3, getdate())
 
 
 //query for Reporting Services
@@ -21,7 +21,7 @@ inner join Polaris.Polaris.MaterialTypes as mt with (nolock)
 on ir.MaterialTypeID = mt.MaterialTypeID
 inner join Polaris.Polaris.ItemStatuses as i with (nolock)
 on ir.ItemStatusID = i.ItemStatusID
-where datediff(year, ir.LastCircTransactionDate, getdate()) > 3
+where ir.LastCircTransactionDate < dateadd(year, -3, getdate())
 and ir.ItemStatusID = '1'
 and ir.AssignedBranchID = @branch
 and ir.AssignedCollectionID = @collection
